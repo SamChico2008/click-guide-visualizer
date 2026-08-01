@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 3.21)
 set(CMAKE_DISABLE_PRECOMPILED_HEADERS ON)
+set(CMAKE_UNITY_BUILD OFF)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+if (MSVC)
+    add_compile_options(/FS)
+endif()
 
 if (NOT DEFINED ENV{GEODE_SDK})
     message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to Geode")

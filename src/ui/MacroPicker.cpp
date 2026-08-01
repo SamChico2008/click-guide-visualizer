@@ -45,17 +45,13 @@ void pickMacroFile(PickCallback callback) {
                      callback(std::move(picked.value()));
                  });
 #else
-    static EventListener<Task<Result<std::filesystem::path>>> listener;
-    listener.bind([callback = std::move(callback)](Task<Result<std::filesystem::path>>::Event* event) {
-        auto* value = event->getValue();
-        if (!value) return;
-        if (!value->isOk()) {
+    file::pick(file::PickMode::OpenFile, options).listen([callback = std::move(callback)](Result<std::filesystem::path>* res) {
+        if (!res || !res->isOk()) {
             callback(std::nullopt);
             return;
         }
-        callback(value->unwrap());
+        callback(res->unwrap());
     });
-    listener.setFilter(file::pick(file::PickMode::OpenFile, options));
 #endif
 }
 

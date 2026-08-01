@@ -1,6 +1,6 @@
 #include "GuideGeometry.hpp"
 
-#include <Geode/Bindings.hpp>
+#include <Geode/Geode.hpp>
 #include <algorithm>
 #include <cmath>
 

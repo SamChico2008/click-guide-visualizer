@@ -439,6 +439,45 @@
             "name": "Show Releases",
             "description": "Also draw a marker where each hold is released."
         },
+        "sound-title": {
+            "type": "title",
+            "name": "Audio Cues & Sound Packs"
+        },
+        "sound-pack": {
+            "type": "enum",
+            "default": "Click",
+            "name": "Cue Sound Pack",
+            "description": "Select the sound played on press/release.",
+            "options": [
+                {
+                    "value": "Click",
+                    "name": "Click / Release"
+                },
+                {
+                    "value": "Beep",
+                    "name": "Beep Tones"
+                },
+                {
+                    "value": "Wood",
+                    "name": "Wood Block"
+                },
+                {
+                    "value": "Snap",
+                    "name": "Snap Crisp"
+                }
+            ]
+        },
+        "sound-volume": {
+            "type": "float",
+            "default": 0.8,
+            "min": 0.0,
+            "max": 1.0,
+            "name": "Audio Cue Volume",
+            "description": "Volume of click feedback sounds.",
+            "control": {
+                "slider-step": 0.05
+            }
+        },
         "macro-title": {
             "type": "title",
             "name": "Macro"
@@ -482,3 +521,4 @@
         }
     }
 }
+

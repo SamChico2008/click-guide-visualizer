@@ -46,9 +46,20 @@ struct GuideInputLayer : geode::Modify<GuideInputLayer, GJBaseGameLayer> {
 
         GJBaseGameLayer::handleButton(down, button, isPlayer1);
 
+        if (button == kJumpButton && playLayer && cgv::settings().showGuide) {
+            std::string soundPackSetting = Mod::get()->getSettingValue<std::string>("sound-pack");
+            SoundPack pack = SoundPack::Click;
+            if (soundPackSetting == "Beep") pack = SoundPack::Beep;
+            else if (soundPackSetting == "Wood") pack = SoundPack::Wood;
+            else if (soundPackSetting == "Snap") pack = SoundPack::Snap;
+
+            AudioEngine::get().playCue(pack, !down);
+        }
+
         if (!down || button != kJumpButton || !playLayer) return;
         if (!cgv::settings().showGuide) return;
 
         cgv::Runtime::get().queuePress(currentMacroFrameOf(playLayer), !isPlayer1);
     }
 };
+

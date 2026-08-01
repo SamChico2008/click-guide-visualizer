@@ -142,13 +142,13 @@ int CalibrationManager::getCurrentStreak(Gamemode mode) const {
 }
 
 void CalibrationManager::save() {
-    matjson::Value root = matjson::Object();
+    auto root = matjson::Value::object();
 
     for (const auto& [mode, records] : m_history) {
         std::string key = gamemodeToString(mode);
-        matjson::Value arr = matjson::Array();
+        auto arr = matjson::Value::array();
         for (const auto& rec : records) {
-            matjson::Value obj = matjson::Object();
+            auto obj = matjson::Value::object();
             obj["offsetMs"] = rec.offsetMs;
             obj["frameDiff"] = rec.frameDiff;
             obj["accurate"] = rec.accurate;

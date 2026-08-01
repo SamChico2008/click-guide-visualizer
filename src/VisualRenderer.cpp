@@ -42,7 +42,6 @@ void VisualRenderer::updateCueState(
     double targetFrame = static_cast<double>(nextInput->frame) + calibratedOffsetFrames;
     double deltaFrames = targetFrame - static_cast<double>(currentFrame);
 
-    // Only render upcoming cues within 60 frames (~250ms at 240Hz)
     if (deltaFrames < -5.0 || deltaFrames > 60.0) return;
 
     bool isHit = std::abs(deltaFrames) <= 1.5;
@@ -65,7 +64,6 @@ void VisualRenderer::updateCueState(
 
 void VisualRenderer::renderRing(const CCPoint& pos, float deltaFrames, bool isHit) {
     float progress = std::max(0.0f, deltaFrames / 60.0f);
-    // Acceleration ease-in curve
     float radius = 15.0f + 65.0f * (progress * progress);
 
     ccColor4F color = isHit ? ccc4f(0.1f, 0.95f, 0.2f, 0.9f) : ccc4f(0.95f, 0.2f, 0.2f, 0.75f);
@@ -76,11 +74,10 @@ void VisualRenderer::renderRing(const CCPoint& pos, float deltaFrames, bool isHi
         float angle = (2.0f * M_PI * i) / segments;
         circlePts[i] = ccp(pos.x + radius * std::cos(angle), pos.y + radius * std::sin(angle));
     }
-    m_drawNode->drawPoly(circlePts, segments, false, color);
+    m_drawNode->drawPolygon(circlePts, segments, ccc4f(0, 0, 0, 0), 1.5f, color);
 }
 
 void VisualRenderer::renderClassic(const CCPoint& pos, float deltaFrames, bool isHit) {
-    // Static timing window (width = 40px, height = 50px around player)
     ccColor4F windowColor = ccc4f(1.0f, 1.0f, 1.0f, 0.2f);
     CCPoint wBox[4] = {
         ccp(pos.x - 20.0f, pos.y - 25.0f),
@@ -90,14 +87,13 @@ void VisualRenderer::renderClassic(const CCPoint& pos, float deltaFrames, bool i
     };
     m_drawNode->drawPolygon(wBox, 4, windowColor, 1.0f, ccc4f(1.0f, 1.0f, 1.0f, 0.5f));
 
-    // Scrolling indicator line approaching timing window center
     float offsetX = deltaFrames * 3.5f;
     ccColor4F lineColor = isHit ? ccc4f(0.1f, 0.95f, 0.2f, 1.0f) : ccc4f(1.0f, 0.4f, 0.1f, 0.85f);
-    m_drawNode->drawLine(
+    m_drawNode->drawSegment(
         ccp(pos.x - offsetX, pos.y - 30.0f),
         ccp(pos.x - offsetX, pos.y + 30.0f),
-        lineColor,
-        2.5f
+        1.25f,
+        lineColor
     );
 }
 
@@ -105,20 +101,18 @@ void VisualRenderer::renderConverge(const CCPoint& pos, float deltaFrames, bool 
     float offset = deltaFrames * 4.0f;
     ccColor4F color = isHit ? ccc4f(0.1f, 0.95f, 0.2f, 1.0f) : ccc4f(0.2f, 0.6f, 1.0f, 0.85f);
 
-    // Left bar
-    m_drawNode->drawLine(
+    m_drawNode->drawSegment(
         ccp(pos.x - offset - 10.0f, pos.y - 20.0f),
         ccp(pos.x - offset - 10.0f, pos.y + 20.0f),
-        color,
-        3.0f
+        1.5f,
+        color
     );
 
-    // Right bar
-    m_drawNode->drawLine(
+    m_drawNode->drawSegment(
         ccp(pos.x + offset + 10.0f, pos.y - 20.0f),
         ccp(pos.x + offset + 10.0f, pos.y + 20.0f),
-        color,
-        3.0f
+        1.5f,
+        color
     );
 }
 
@@ -128,7 +122,6 @@ void VisualRenderer::renderPulse(const CCPoint& pos, float deltaFrames, bool isH
 
     ccColor4F color = isHit ? ccc4f(0.1f, 0.95f, 0.2f, alpha) : ccc4f(1.0f, 1.0f, 1.0f, alpha);
 
-    // Crosshair lines
-    m_drawNode->drawLine(ccp(pos.x - size, pos.y), ccp(pos.x + size, pos.y), color, 2.0f);
-    m_drawNode->drawLine(ccp(pos.x, pos.y - size), ccp(pos.x, pos.y + size), color, 2.0f);
+    m_drawNode->drawSegment(ccp(pos.x - size, pos.y), ccp(pos.x + size, pos.y), 1.0f, color);
+    m_drawNode->drawSegment(ccp(pos.x, pos.y - size), ccp(pos.x, pos.y + size), 1.0f, color);
 }

@@ -1,58 +1,31 @@
 #include "MacroPicker.hpp"
-
-#include "core/Compat.hpp"
-
-#include <Geode/Geode.hpp>
-#include <Geode/utils/file.hpp>
-#include <utility>
-
-#if CGV_GEODE_V5
-#include <Geode/utils/async.hpp>
-#endif
-
-using namespace geode::prelude;
+#include <windows.h>
+#include <commdlg.h>
+#include <filesystem>
 
 namespace cgv {
 
-namespace {
-
-file::FilePickOptions macroPickOptions() {
-    file::FilePickOptions options;
-    options.filters.push_back(file::FilePickOptions::Filter{
-        "Macro files",
-        {"*.gdr", "*.gdr2", "*.json", "*.mhr"},
-    });
-    return options;
-}
-
-} // namespace
-
 void pickMacroFile(PickCallback callback) {
-    auto options = macroPickOptions();
+    char szFile[MAX_PATH] = {0};
 
-#if CGV_GEODE_V5
-    async::spawn(file::pick(file::PickMode::OpenFile, options),
-                 [callback = std::move(callback)](file::PickResult result) {
-                     if (!result) {
-                         callback(std::nullopt);
-                         return;
-                     }
-                     auto picked = std::move(result).unwrap();
-                     if (!picked.has_value()) {
-                         callback(std::nullopt);
-                         return;
-                     }
-                     callback(std::move(picked.value()));
-                 });
-#else
-    file::pick(file::PickMode::OpenFile, options).listen([callback = std::move(callback)](Result<std::filesystem::path>* res) {
-        if (!res || !res->isOk()) {
-            callback(std::nullopt);
-            return;
-        }
-        callback(res->unwrap());
-    });
-#endif
+    OPENFILENAMEA ofn;
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = "Macro Files (*.gdr;*.gdr2;*.json;*.mhr)\0*.gdr;*.gdr2;*.json;*.mhr\0All Files (*.*)\0*.*\0";
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+    if (GetOpenFileNameA(&ofn) == TRUE) {
+        callback(std::filesystem::path(szFile));
+    } else {
+        callback(std::nullopt);
+    }
 }
 
 } // namespace cgv

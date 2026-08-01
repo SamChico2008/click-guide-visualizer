@@ -65,41 +65,31 @@ void VisualRenderer::updateCueState(
 void VisualRenderer::renderRing(const CCPoint& pos, float deltaFrames, bool isHit) {
     float progress = std::max(0.0f, deltaFrames / 60.0f);
     float radius = 15.0f + 65.0f * (progress * progress);
+    ccColor4F color = isHit ? ccc4f(0.1f, 0.95f, 0.2f, 0.9f) : ccc4f(0.0f, 0.8f, 1.0f, 0.75f);
 
-    ccColor4F color = isHit ? ccc4f(0.1f, 0.95f, 0.2f, 0.9f) : ccc4f(0.95f, 0.2f, 0.2f, 0.75f);
-
-    const int segments = 32;
-    CCPoint circlePts[segments];
-    for (int i = 0; i < segments; ++i) {
-        float angle = (2.0f * M_PI * i) / segments;
-        circlePts[i] = ccp(pos.x + radius * std::cos(angle), pos.y + radius * std::sin(angle));
+    m_drawNode->drawCircle(pos, radius, color, 1.5f, 36);
+    if (isHit) {
+        m_drawNode->drawDot(pos, 4.0f, color);
     }
-    m_drawNode->drawPolygon(circlePts, segments, ccc4f(0, 0, 0, 0), 1.5f, color);
 }
 
 void VisualRenderer::renderClassic(const CCPoint& pos, float deltaFrames, bool isHit) {
-    ccColor4F windowColor = ccc4f(1.0f, 1.0f, 1.0f, 0.2f);
-    CCPoint wBox[4] = {
-        ccp(pos.x - 20.0f, pos.y - 25.0f),
-        ccp(pos.x + 20.0f, pos.y - 25.0f),
-        ccp(pos.x + 20.0f, pos.y + 25.0f),
-        ccp(pos.x - 20.0f, pos.y + 25.0f)
-    };
-    m_drawNode->drawPolygon(wBox, 4, windowColor, 1.0f, ccc4f(1.0f, 1.0f, 1.0f, 0.5f));
+    ccColor4F windowColor = ccc4f(1.0f, 1.0f, 1.0f, 0.15f);
+    m_drawNode->drawRect(ccp(pos.x - 20.0f, pos.y - 25.0f), ccp(pos.x + 20.0f, pos.y + 25.0f), windowColor, 1.0f, ccc4f(1.0f, 1.0f, 1.0f, 0.4f));
 
     float offsetX = deltaFrames * 3.5f;
-    ccColor4F lineColor = isHit ? ccc4f(0.1f, 0.95f, 0.2f, 1.0f) : ccc4f(1.0f, 0.4f, 0.1f, 0.85f);
+    ccColor4F lineColor = isHit ? ccc4f(0.1f, 0.95f, 0.2f, 1.0f) : ccc4f(0.0f, 0.8f, 1.0f, 0.85f);
     m_drawNode->drawSegment(
         ccp(pos.x - offsetX, pos.y - 30.0f),
         ccp(pos.x - offsetX, pos.y + 30.0f),
-        1.25f,
+        1.5f,
         lineColor
     );
 }
 
 void VisualRenderer::renderConverge(const CCPoint& pos, float deltaFrames, bool isHit) {
     float offset = deltaFrames * 4.0f;
-    ccColor4F color = isHit ? ccc4f(0.1f, 0.95f, 0.2f, 1.0f) : ccc4f(0.2f, 0.6f, 1.0f, 0.85f);
+    ccColor4F color = isHit ? ccc4f(0.1f, 0.95f, 0.2f, 1.0f) : ccc4f(0.0f, 0.8f, 1.0f, 0.85f);
 
     m_drawNode->drawSegment(
         ccp(pos.x - offset - 10.0f, pos.y - 20.0f),
@@ -119,9 +109,12 @@ void VisualRenderer::renderConverge(const CCPoint& pos, float deltaFrames, bool 
 void VisualRenderer::renderPulse(const CCPoint& pos, float deltaFrames, bool isHit) {
     float alpha = isHit ? 1.0f : (1.0f - std::min(1.0f, deltaFrames / 60.0f)) * 0.7f;
     float size = isHit ? 22.0f : 12.0f;
+    ccColor4F color = isHit ? ccc4f(0.1f, 0.95f, 0.2f, alpha) : ccc4f(0.0f, 0.8f, 1.0f, alpha);
 
-    ccColor4F color = isHit ? ccc4f(0.1f, 0.95f, 0.2f, alpha) : ccc4f(1.0f, 1.0f, 1.0f, alpha);
-
-    m_drawNode->drawSegment(ccp(pos.x - size, pos.y), ccp(pos.x + size, pos.y), 1.0f, color);
-    m_drawNode->drawSegment(ccp(pos.x, pos.y - size), ccp(pos.x, pos.y + size), 1.0f, color);
+    m_drawNode->drawSegment(ccp(pos.x - size, pos.y), ccp(pos.x + size, pos.y), 1.2f, color);
+    m_drawNode->drawSegment(ccp(pos.x, pos.y - size), ccp(pos.x, pos.y + size), 1.2f, color);
+    if (isHit) {
+        m_drawNode->drawCircle(pos, 16.0f, color, 1.5f, 24);
+    }
 }
+

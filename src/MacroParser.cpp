@@ -189,19 +189,33 @@ bool MacroParser::parseBinaryMHR(const std::vector<uint8_t>& buffer) {
 }
 
 std::optional<MacroInput> MacroParser::getNextInput(uint64_t currentFrame, bool player2) const {
-    for (const auto& in : m_inputs) {
-        if (in.player2 == player2 && in.frame >= currentFrame) {
-            return in;
+    if (m_inputs.empty()) return std::nullopt;
+
+    auto it = std::lower_bound(m_inputs.begin(), m_inputs.end(), currentFrame,
+        [](const MacroInput& in, uint64_t val) {
+            return in.frame < val;
+        });
+
+    while (it != m_inputs.end()) {
+        if (it->player2 == player2 && it->down) {
+            return *it;
         }
+        ++it;
     }
     return std::nullopt;
 }
 
 std::optional<MacroInput> MacroParser::getExactInput(uint64_t currentFrame, bool player2) const {
-    for (const auto& in : m_inputs) {
-        if (in.player2 == player2 && in.frame == currentFrame) {
-            return in;
-        }
+    if (m_inputs.empty()) return std::nullopt;
+
+    auto it = std::lower_bound(m_inputs.begin(), m_inputs.end(), currentFrame,
+        [](const MacroInput& in, uint64_t val) {
+            return in.frame < val;
+        });
+
+    if (it != m_inputs.end() && it->frame == currentFrame && it->player2 == player2) {
+        return *it;
     }
     return std::nullopt;
 }
+

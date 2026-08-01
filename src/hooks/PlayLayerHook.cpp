@@ -3,6 +3,8 @@
 #include "render/GuideController.hpp"
 #include "runtime/Runtime.hpp"
 #include "settings/Settings.hpp"
+#include "AudioEngine.hpp"
+#include "CalibrationManager.hpp"
 
 #include <Geode/Geode.hpp>
 #include <Geode/modify/PlayLayer.hpp>
@@ -17,6 +19,9 @@ struct GuidePlayLayer : geode::Modify<GuidePlayLayer, PlayLayer> {
 
     bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
         if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
+
+        AudioEngine::get().init();
+        CalibrationManager::get().resetAttempt();
 
         cgv::SettingsCache::get().refresh();
         m_fields->controller->attach(this);
@@ -38,6 +43,7 @@ struct GuidePlayLayer : geode::Modify<GuidePlayLayer, PlayLayer> {
 
     void resetLevel() {
         PlayLayer::resetLevel();
+        CalibrationManager::get().resetAttempt();
         cgv::AssistState::get().buffer().resetConsumed();
         m_fields->controller->onLevelReset();
     }
@@ -53,3 +59,4 @@ struct GuidePlayLayer : geode::Modify<GuidePlayLayer, PlayLayer> {
         PlayLayer::onQuit();
     }
 };
+
